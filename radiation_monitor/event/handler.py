@@ -19,8 +19,8 @@ import subprocess
 import xively
 import tweepy
 from keen.client import KeenClient
-from solar_monitor import logger
-from solar_monitor.event.base import IEventHandler
+from radiation_monitor import logger
+from radiation_monitor.event.base import IEventHandler
 
 
 class SystemHaltEventHandler(IEventHandler):

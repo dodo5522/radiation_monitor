@@ -43,7 +43,7 @@ have TweetEventHandler and SystemHaltEventHandler objects.
 
 from queue import Queue
 from threading import Thread
-from solar_monitor import logger
+from radiation_monitor import logger
 
 
 class IEventListener(object):

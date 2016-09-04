@@ -4,8 +4,8 @@
 import sys
 import datetime
 import unittest
-from solar_monitor.event.trigger import ChargeCurrentHighTrigger
-from solar_monitor.event.handler import IEventHandler
+from radiation_monitor.event.trigger import ChargeCurrentHighTrigger
+from radiation_monitor.event.handler import IEventHandler
 from unittest.mock import MagicMock
 
 

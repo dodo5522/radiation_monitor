@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 
 import unittest
-from solar_monitor.event.base import IEventHandler
+from radiation_monitor.event.base import IEventHandler
 
 
 class TestIEventHandler(unittest.TestCase):

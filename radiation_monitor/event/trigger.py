@@ -17,8 +17,8 @@
 
 """ Battery driver class to access service. """
 
-from solar_monitor import logger
-from solar_monitor.event.base import IEventTrigger
+from radiation_monitor import logger
+from radiation_monitor.event.base import IEventTrigger
 
 
 class DataIsUpdatedTrigger(IEventTrigger):

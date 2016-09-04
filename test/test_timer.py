@@ -9,7 +9,7 @@ import threading
 import unittest
 
 from datetime import datetime
-from solar_monitor import timer
+from radiation_monitor import timer
 
 
 class MainLoop(object):

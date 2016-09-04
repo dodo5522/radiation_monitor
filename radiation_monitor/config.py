@@ -15,14 +15,14 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from solar_monitor.event.trigger import DataIsUpdatedTrigger
-from solar_monitor.event.trigger import BatteryLowTrigger
-from solar_monitor.event.trigger import BatteryFullTrigger
-from solar_monitor.event.trigger import ChargeCurrentHighTrigger
-from solar_monitor.event.handler import SystemHaltEventHandler
-from solar_monitor.event.handler import KeenIoEventHandler
-from solar_monitor.event.handler import XivelyEventHandler
-from solar_monitor.event.handler import TweetBotEventHandler
+from radiation_monitor.event.trigger import DataIsUpdatedTrigger
+from radiation_monitor.event.trigger import BatteryLowTrigger
+from radiation_monitor.event.trigger import BatteryFullTrigger
+from radiation_monitor.event.trigger import ChargeCurrentHighTrigger
+from radiation_monitor.event.handler import SystemHaltEventHandler
+from radiation_monitor.event.handler import KeenIoEventHandler
+from radiation_monitor.event.handler import XivelyEventHandler
+from radiation_monitor.event.handler import TweetBotEventHandler
 
 
 def init_triggers(**kwargs):

@@ -23,18 +23,18 @@ def requires():
 
 
 setup(
-    name='solar_monitor',
+    name='radiation_monitor',
     version='2.1.2',
     description='Solar charge controller monitor like TS-MPPT-60',
     long_description=readme(),
     license="GPLv2",
     author='Takashi Ando',
-    url='https://github.com/dodo5522/solar_monitor.git',
+    url='https://github.com/dodo5522/radiation_monitor.git',
     install_requires=requires(),
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'solar_monitor = solar_monitor.__main__:main'
+            'radiation_monitor = radiation_monitor.__main__:main'
         ]
     },
     test_suite='nose.collector',

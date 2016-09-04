@@ -19,10 +19,10 @@ import sys
 import time
 import datetime
 import tsmppt60_driver as CHARGE_CONTROLLER
-from solar_monitor import argparser
-from solar_monitor import config
-from solar_monitor import logger
-from solar_monitor.timer import RecursiveTimer
+from radiation_monitor import argparser
+from radiation_monitor import config
+from radiation_monitor import logger
+from radiation_monitor.timer import RecursiveTimer
 
 
 def start_triggers(triggers):

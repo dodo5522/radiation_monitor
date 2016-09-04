@@ -16,7 +16,7 @@
 #   limitations under the License.
 
 import unittest
-from solar_monitor import argparser
+from radiation_monitor import argparser
 
 
 class TestArgParser(unittest.TestCase):

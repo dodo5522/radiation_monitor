@@ -12,6 +12,6 @@ TWITTER_CONSUMER_SECRET=""
 TWITTER_KEY=""
 TWITTER_SECRET=""
 INTERVAL=300
-LOG=/var/log/solar_monitor.log
+LOG=/var/log/radiation_monitor.log
 ALL_STATUS_ENABLED=NO
 DEBUG=YES

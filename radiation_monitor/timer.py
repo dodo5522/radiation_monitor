@@ -20,7 +20,7 @@
 import threading
 import time
 
-from solar_monitor import logger
+from radiation_monitor import logger
 from datetime import datetime
 
 
