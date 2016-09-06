@@ -3,91 +3,83 @@
 hide footbox
 actor User
 participant Main
-participant RecursiveTimer
-participant BatteryLowTrigger
-participant BatteryFullTrigger
-participant SystemHaltEventHandler
+participant GeigerMeter
+participant DataIsUpdatedTrigger
+participant RadiationLimitTrigger
+participant KeenIoEventHandler
 participant TweetBotEventHandler
 box "Event Triggers" #LightBlue
-    participant BatteryLowTrigger
-    participant BatteryFullTrigger
+    participant DataIsUpdatedTrigger
+    participant RadiationLimitTrigger
 end box
 box "Event Handlers" #LightGreen
-    participant SystemHaltEventHandler
+    participant KeenIoEventHandler
     participant TweetBotEventHandler
 end box
 
 User -> Main : boot
 activate Main
 
-Main -> BatteryLowTrigger : Run trigger loop.
-activate BatteryLowTrigger
-Main -> BatteryFullTrigger
-activate BatteryFullTrigger
+Main -> RadiationLimitTrigger : Run trigger loop.
+activate RadiationLimitTrigger
+Main -> DataIsUpdatedTrigger
+activate DataIsUpdatedTrigger
 
-BatteryLowTrigger -> SystemHaltEventHandler : Run handler loop.
-activate SystemHaltEventHandler 
-BatteryLowTrigger -> TweetBotEventHandler
+DataIsUpdatedTrigger -> KeenIoEventHandler : Run handler loop.
+activate KeenIoEventHandler 
+RadiationLimitTrigger -> TweetBotEventHandler : Run handler loop.
 activate TweetBotEventHandler
-BatteryFullTrigger -> TweetBotEventHandler
 
-Main -> RecursiveTimer : Run the recursive timer.
-activate RecursiveTimer
-RecursiveTimer -> RecursiveTimer : Run the timer event handler.
-activate RecursiveTimer
+Main -> GeigerMeter : Initialize geiger meter object.
+activate GeigerMeter
+GeigerMeter -> GeigerMeter : Run the geiger meter event handler.
+activate GeigerMeter
 
 loop Until terminated by main
-    RecursiveTimer -> RecursiveTimer : Get data of charge controller.
-    RecursiveTimer -> BatteryLowTrigger : Send the data to all trigger object.
-    activate BatteryLowTrigger
-    RecursiveTimer -> BatteryFullTrigger
-    activate BatteryFullTrigger
+    GeigerMeter -> GeigerMeter : Get the data of radiation value.
+    GeigerMeter -> DataIsUpdatedTrigger : Send the data to all trigger object.
+    activate DataIsUpdatedTrigger
+    GeigerMeter -> RadiationLimitTrigger
+    activate RadiationLimitTrigger
 
-    alt Battery voltage getting lower than configuraton
-        BatteryLowTrigger -> SystemHaltEventHandler : Tell the condition getting worse.
-        activate SystemHaltEventHandler
-        SystemHaltEventHandler ->] : Switch power off some devices set by configration.
-        deactivate SystemHaltEventHandler
-        BatteryLowTrigger -> TweetBotEventHandler : Tell the condition getting worse.
+    DataIsUpdatedTrigger -> KeenIoEventHandler : Tell the condition getting worse.
+    activate KeenIoEventHandler
+    KeenIoEventHandler ->] : Send the radiation value to keenio cloud service.
+    deactivate KeenIoEventHandler
+    deactivate DataIsUpdatedTrigger
+
+    alt Radiation value is getting worse than configuraton
+        RadiationLimitTrigger -> TweetBotEventHandler : Tell the condition getting worse.
         activate TweetBotEventHandler
         TweetBotEventHandler ->] : Tweet the condition\n getting worse.
         deactivate TweetBotEventHandler
     end
-    deactivate BatteryLowTrigger
-
-    alt Battery voltage getting higher as full
-        BatteryFullTrigger -> TweetBotEventHandler : Tell the condition.
-        activate TweetBotEventHandler
-        TweetBotEventHandler ->] : Tweet the battery\n full condition.
-        deactivate TweetBotEventHandler
-    end
-    deactivate BatteryFullTrigger
+    deactivate RadiationLimitTrigger
 end
 
 User -> Main : Terminate.
 activate Main
-Main -> BatteryLowTrigger : Terminate triggers.
-activate BatteryLowTrigger
-Main -> BatteryFullTrigger
-activate BatteryFullTrigger
-BatteryLowTrigger -> SystemHaltEventHandler : Terminate handlers.
-BatteryLowTrigger <-- SystemHaltEventHandler
-deactivate SystemHaltEventHandler
-BatteryLowTrigger -> TweetBotEventHandler
-BatteryLowTrigger <-- TweetBotEventHandler
+Main -> DataIsUpdatedTrigger : Terminate triggers.
+activate DataIsUpdatedTrigger
+Main -> RadiationLimitTrigger
+activate RadiationLimitTrigger
+DataIsUpdatedTrigger -> KeenIoEventHandler : Terminate handlers.
+DataIsUpdatedTrigger <-- KeenIoEventHandler
+deactivate KeenIoEventHandler
+deactivate DataIsUpdatedTrigger
+Main <-- DataIsUpdatedTrigger
+deactivate DataIsUpdatedTrigger
+RadiationLimitTrigger -> TweetBotEventHandler : Terminate handlers.
+RadiationLimitTrigger <-- TweetBotEventHandler
 deactivate TweetBotEventHandler
-deactivate BatteryLowTrigger
-Main <-- BatteryLowTrigger
-deactivate BatteryLowTrigger
-BatteryFullTrigger -> TweetBotEventHandler : Terminate handlers.
-deactivate BatteryFullTrigger
-Main <-- BatteryFullTrigger
-deactivate BatteryFullTrigger
+deactivate RadiationLimitTrigger
+Main <-- RadiationLimitTrigger
+deactivate RadiationLimitTrigger
 
-Main -> RecursiveTimer : Terminate
-deactivate RecursiveTimer
-Main <-- RecursiveTimer
-deactivate RecursiveTimer
+Main -> GeigerMeter : Terminate
+deactivate GeigerMeter
+Main <-- GeigerMeter
+deactivate GeigerMeter
 deactivate Main
 deactivate Main
 @enduml

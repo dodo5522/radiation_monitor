@@ -37,22 +37,14 @@ package event #DDDDDD {
     package trigger #FFFFFF {
         class DataIsUpdatedTrigger {
         }
-        class BatteryLowTrigger {
-        }
-        class BatteryFullTrigger {
-        }
-        class ChargeCurrentHighTrigger {
+        class RadiationLimitTrigger {
         }
 
         IEventTrigger <|-- DataIsUpdatedTrigger
-        IEventTrigger <|-- BatteryLowTrigger
-        IEventTrigger <|-- BatteryFullTrigger
-        IEventTrigger <|-- ChargeCurrentHighTrigger
+        IEventTrigger <|-- RadiationLimitTrigger
     }
 
     package handler #FFFFFF {
-        class SystemHaltEventHandler {
-        }
         class KeenIoEventHandler {
         }
         class XivelyEventHandler {
@@ -60,15 +52,9 @@ package event #DDDDDD {
         class TweetBotEventHandler {
         }
 
-        IEventHandler <|-- SystemHaltEventHandler
         IEventHandler <|-- KeenIoEventHandler
         IEventHandler <|-- XivelyEventHandler
         IEventHandler <|-- TweetBotEventHandler
-    }
-}
-
-package timer #DDDDDD {
-    class RecursiveTimer {
     }
 }
 
