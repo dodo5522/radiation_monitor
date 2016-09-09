@@ -30,12 +30,6 @@ def init(argv=sys.argv[1:]):
     arg = argparse.ArgumentParser(
         description="main program to test TS-MPPT-60 monitor modules")
     arg.add_argument(
-        "-n", "--host-name",
-        type=str,
-        default="192.168.1.20",
-        help="TS-MPPT-60 host address"
-    )
-    arg.add_argument(
         "-xa", "--xively-api-key",
         type=str,
         nargs='?', default=None, const=None,
@@ -84,43 +78,6 @@ def init(argv=sys.argv[1:]):
         help="Access Token Secret"
     )
     arg.add_argument(
-        "-be", "--battery-monitor-enabled",
-        action="store_true",
-        default=False,
-        help="enable battery monitor"
-    )
-    arg.add_argument(
-        "-bl", "--battery-limit",
-        type=float,
-        nargs='?', default=11.5, const=11.5,
-        help="battery voltage limit like 11.5"
-    )
-    arg.add_argument(
-        "-bs", "--battery-limit-hook-script",
-        type=str, nargs='?',
-        default="/usr/local/bin/remote_shutdown.sh",
-        const="/usr/local/bin/remote_shutdown.sh",
-        help="path to hook sript run at limit of battery"
-    )
-    arg.add_argument(
-        "-ch", "--charge-current-high",
-        type=float,
-        nargs='?', default=30.0, const=30.0,
-        help="charge current high limit like 30.0"
-    )
-    arg.add_argument(
-        "-bf", "--battery-full-limit",
-        type=float,
-        nargs='?', default=14.0, const=14.0,
-        help="battery full charged voltage like 14.0"
-    )
-    arg.add_argument(
-        "-i", "--interval",
-        type=int,
-        default=300,
-        help="Xively update interval with sec"
-    )
-    arg.add_argument(
         "-l", "--log-file",
         type=str,
         default=None,
@@ -131,12 +88,6 @@ def init(argv=sys.argv[1:]):
         action='store_true',
         default=False,
         help="Just get status of charge controller"
-    )
-    arg.add_argument(
-        "--status-all",
-        action='store_false',
-        default=True,
-        help="Get all status of charge controller"
     )
     arg.add_argument(
         "--debug",

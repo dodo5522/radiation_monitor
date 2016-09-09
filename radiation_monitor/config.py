@@ -15,14 +15,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from radiation_monitor.event.trigger import DataIsUpdatedTrigger
-from radiation_monitor.event.trigger import BatteryLowTrigger
-from radiation_monitor.event.trigger import BatteryFullTrigger
-from radiation_monitor.event.trigger import ChargeCurrentHighTrigger
-from radiation_monitor.event.handler import SystemHaltEventHandler
-from radiation_monitor.event.handler import KeenIoEventHandler
-from radiation_monitor.event.handler import XivelyEventHandler
-from radiation_monitor.event.handler import TweetBotEventHandler
+from event_listener.trigger import DataIsUpdatedTrigger
+from event_listener.handler import KeenIoEventHandler
+from event_listener.handler import XivelyEventHandler
+from event_listener.handler import TweetBotEventHandler
 
 
 def init_triggers(**kwargs):
@@ -55,17 +51,7 @@ def init_triggers(**kwargs):
     if configs:
         data_updated_trigger.append(XivelyEventHandler(*configs))
 
-    config = kwargs["battery_limit"]
-    if config:
-        bat_low_trigger = BatteryLowTrigger(config)
-
-        config = kwargs["battery_limit_hook_script"]
-        if config:
-            bat_low_trigger.append(
-                SystemHaltEventHandler(config))
-
     configs = get_configs(
-        kwargs["battery_limit"],
         kwargs["twitter_consumer_key"],
         kwargs["twitter_consumer_secret"],
         kwargs["twitter_key"],
@@ -81,57 +67,11 @@ def init_triggers(**kwargs):
 
         # remove "battery_limit" member.
         configs.pop(0)
-        bat_low_trigger.append(TweetBotEventHandler(*configs, **kwconfigs))
-
-    config = kwargs["battery_full_limit"]
-    if config:
-        bat_ful_trigger = BatteryFullTrigger(full_voltage=config)
-
-        configs = get_configs(
-            kwargs["twitter_consumer_key"],
-            kwargs["twitter_consumer_secret"],
-            kwargs["twitter_key"],
-            kwargs["twitter_secret"])
-
-        if configs:
-            kwconfigs = {}
-            kwconfigs["msgs"] = [
-                "バッテリが満充電近くまで回復しました。",
-                "現在{VALUE}[{UNIT}]です。",
-                "{YEAR}年{MONTH}月{DAY}日{HOUR}時{MINUTE}分に取得したデータを元にしています。"]
-            kwconfigs["value_label"] = "Battery Voltage"
-
-            bat_ful_trigger.append(TweetBotEventHandler(*configs, **kwconfigs))
-
-    config = kwargs["charge_current_high"]
-    if config:
-        current_high_trigger = ChargeCurrentHighTrigger(high_current=config)
-
-        configs = get_configs(
-            kwargs["twitter_consumer_key"],
-            kwargs["twitter_consumer_secret"],
-            kwargs["twitter_key"],
-            kwargs["twitter_secret"])
-
-        if configs:
-            kwconfigs = {}
-            kwconfigs["msgs"] = [
-                "太陽が出てきましたかね。本領発揮です。",
-                "充電流量が{VALUE}[{UNIT}]になりました。",
-                "{YEAR}年{MONTH}月{DAY}日{HOUR}時{MINUTE}分に取得したデータを元にしています。"]
-            kwconfigs["value_label"] = "Charge Current"
-
-            current_high_trigger.append(TweetBotEventHandler(*configs, **kwconfigs))
+        data_updated_trigger.append(TweetBotEventHandler(*configs, **kwconfigs))
 
     triggers = []
     if "data_updated_trigger" in locals():
         triggers.append(data_updated_trigger)
-    if "bat_low_trigger" in locals():
-        triggers.append(bat_low_trigger)
-    if "bat_ful_trigger" in locals():
-        triggers.append(bat_ful_trigger)
-    if "current_high_trigger" in locals():
-        triggers.append(current_high_trigger)
 
     return triggers
 
