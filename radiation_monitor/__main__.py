@@ -62,7 +62,7 @@ def put_to_triggers(device_name, data, date_time):
 
 
 geiger_meter = GeigerMeter(
-    uart_dev="/dev/tty.Bluetooth-Incoming-Port",
+    uart_dev=args.serial_device_path,
     uart_baud=19200,
     callback_to_get_val=put_to_triggers,
     usv_per_cpm=0.00812)
