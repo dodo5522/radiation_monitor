@@ -36,6 +36,12 @@ def init(argv=sys.argv[1:]):
         help="Serial (UART) device file path connected to geiger counter"
     )
     arg.add_argument(
+        "serial_baudrate",
+        type=int,
+        nargs=1,
+        help="Serial (UART) device's baudrate to geiger counter"
+    )
+    arg.add_argument(
         "-xa", "--xively-api-key",
         type=str,
         nargs='?', default=None, const=None,

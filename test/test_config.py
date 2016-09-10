@@ -36,7 +36,7 @@ class TestConfig(unittest.TestCase):
         pass
 
     def test_default_config(self):
-        args = argparser.init([])
+        args = argparser.init(["/dev/tty.usbserial", "19200"])
         kwargs = dict(args._get_kwargs())
 
         triggers = config.init_triggers(**kwargs)

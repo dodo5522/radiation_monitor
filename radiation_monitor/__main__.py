@@ -62,8 +62,8 @@ def put_to_triggers(device_name, data, date_time):
 
 
 geiger_meter = GeigerMeter(
-    uart_dev=args.serial_device_path,
-    uart_baud=19200,
+    uart_dev=args.serial_device_path[0],
+    uart_baud=args.serial_baudrate[0],
     callback_to_get_val=put_to_triggers,
     usv_per_cpm=0.00812)
 
