@@ -35,8 +35,9 @@ class TestArgParser(unittest.TestCase):
         pass
 
     def test_default_args(self):
-        parsed = argparser.init([])
+        parsed = argparser.init(["/dev/tty.usbserial"])
 
+        self.assertEqual("/dev/tty.usbserial", parsed.serial_device_path[0])
         self.assertEqual(None, parsed.xively_api_key)
         self.assertEqual(None, parsed.xively_feed_key)
         self.assertEqual(None, parsed.keenio_project_id)

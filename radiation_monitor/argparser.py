@@ -28,7 +28,13 @@ def init(argv=sys.argv[1:]):
         Dict like object.
     """
     arg = argparse.ArgumentParser(
-        description="main program to test TS-MPPT-60 monitor modules")
+        description="Application program to monitor Geiger counter device.")
+    arg.add_argument(
+        "serial_device_path",
+        type=str,
+        nargs=1,
+        help="Serial (UART) device file path connected to geiger counter"
+    )
     arg.add_argument(
         "-xa", "--xively-api-key",
         type=str,
