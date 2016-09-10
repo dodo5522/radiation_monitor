@@ -25,50 +25,6 @@ from radiation_monitor import logger
 from radiation_monitor.timer import RecursiveTimer
 
 
-def start_triggers(triggers):
-    """ Start all event triggers. At the same time, the all event handler
-        included in the event triggers also starts.
-
-    Args:
-        triggers: List of event trigger to be started.
-    Returns:
-        None
-    """
-    for trigger in triggers:
-        trigger.start()
-
-
-def stop_triggers(triggers):
-    """ Stop event trigger/handler.
-
-    Args:
-        triggers: List of event trigger to be started.
-    Returns:
-        None
-    """
-    for trigger in triggers:
-        trigger.stop()
-
-    for trigger in triggers:
-        trigger.join()
-
-
-def put_to_triggers(triggers, data):
-    """ Put data to all event trigger.
-
-    Args:
-        triggers: List of event trigger to be started.
-        data: data object to be put to all trigger.
-    Returns:
-        None
-    """
-    for trigger in triggers:
-        trigger.put_q(data)
-
-    for trigger in triggers:
-        trigger.join_q()
-
-
 def event_loop(**kwargs):
     """ Monitor charge controller and update database like xively or
         internal database. This method should be called with a timer.
@@ -99,7 +55,7 @@ def event_loop(**kwargs):
                 date=now, group=data["group"], elem=key,
                 value=str(data["value"]), unit=data["unit"]))
 
-    put_to_triggers(triggers, rawdata)
+    triggers.put(rawdata)
 
 
 def main():
@@ -113,7 +69,7 @@ def main():
         return
 
     triggers = config.init_triggers(**kwargs)
-    start_triggers(triggers)
+    triggers.start()
 
     kwargs = {}
     kwargs["host_name"] = args.host_name
@@ -133,6 +89,6 @@ def main():
         raise
     finally:
         timer.cancel()
-        stop_triggers(triggers)
+        triggers.stop()
 
 main()

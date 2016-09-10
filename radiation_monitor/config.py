@@ -21,6 +21,42 @@ from event_listener.handler import XivelyEventHandler
 from event_listener.handler import TweetBotEventHandler
 
 
+class ListTrigger(list):
+    """ List of trigger object extending list. """
+
+    def __init__(self):
+        list.__init__(self)
+
+    def start(self):
+        """ Start all event triggers. At the same time, the all event handler
+            included in the event triggers also starts.
+        """
+        for trigger in self:
+            trigger.start()
+
+    def stop(self):
+        """ Stop event trigger/handler. """
+        for trigger in self:
+            trigger.stop()
+
+        for trigger in self:
+            trigger.join()
+
+    def put(self, data):
+        """ Put data to all event trigger.
+
+        Args:
+            data: data object to be put to all trigger.
+        Returns:
+            None
+        """
+        for trigger in self:
+            trigger.put_q(data)
+
+        for trigger in self:
+            trigger.join_q()
+
+
 def init_triggers(**kwargs):
     """ Initialize event triggers and handlers according to settings.
 
@@ -69,9 +105,8 @@ def init_triggers(**kwargs):
         configs.pop(0)
         data_updated_trigger.append(TweetBotEventHandler(*configs, **kwconfigs))
 
-    triggers = []
-    if "data_updated_trigger" in locals():
-        triggers.append(data_updated_trigger)
+    triggers = ListTrigger()
+    triggers.append(data_updated_trigger)
 
     return triggers
 
