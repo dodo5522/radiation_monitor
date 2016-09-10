@@ -27,7 +27,7 @@ args = argparser.init()
 logger.configure(path_file=args.log_file, is_debug=args.debug)
 
 if args.just_get_status:
-    return
+    exit()
 
 kwargs = dict(args._get_kwargs())
 triggers = config.init_triggers(**kwargs)
