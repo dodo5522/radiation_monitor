@@ -20,6 +20,8 @@ try:
     from unittest.mock import MagicMock, patch
 except:
     from mock import MagicMock, patch
+from collections import OrderedDict
+from datetime import datetime
 from radiation_monitor.source import GeigerMeter
 from serial import SerialException
 import threading
@@ -40,8 +42,9 @@ class TestSource(unittest.TestCase):
     def tearDown(self):
         pass
 
+    @patch("radiation_monitor.source.datetime", autospec=True)
     @patch("radiation_monitor.source.Serial", autospec=True)
-    def test_geiger_meter_sequence(self, patched_serial):
+    def test_geiger_meter_sequence(self, patched_serial, pached_datetime):
         expected_cpm = 20
 
         unlock_readline = threading.Event()
@@ -64,15 +67,16 @@ class TestSource(unittest.TestCase):
         uart_port.close = MagicMock(side_effect=mocked_serial_close)
         uart_port.readline = MagicMock(side_effect=mocked_serial_readline)
         patched_serial.return_value = uart_port
+        pached_datetime.utcnow = MagicMock(return_value=datetime(2016, 1, 1))
 
         callback_called = threading.Event()
 
-        def mocked_callback(val):
+        def mocked_callback(name, data, now):
             callback_called.set()
 
         callback = MagicMock(side_effect=mocked_callback)
 
-        g = GeigerMeter("/dev/test", 15200, callback)
+        g = GeigerMeter("hoge", "/dev/test", 15200, callback)
         g.start()
 
         self.assertTrue(g.is_alive())
@@ -82,7 +86,14 @@ class TestSource(unittest.TestCase):
 
         self.assertTrue(g.is_alive())
         callback_called.wait()
-        callback.assert_called_once_with(expected_cpm * 0.00812)
+        callback.assert_called_once_with(
+            "hoge",
+            OrderedDict({
+                "label": "Space Radiation",
+                "value": expected_cpm * 0.00812,
+                "unit": "usv"
+            }),
+            datetime(2016, 1, 1))
 
         g.stop()
         g.join()

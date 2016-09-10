@@ -16,24 +16,30 @@
 #   limitations under the License.
 
 import threading
+from collections import OrderedDict
+from datetime import datetime
 from radiation_monitor import logger
 from serial import Serial
 from serial import SerialException
 
 
 class GeigerMeter(threading.Thread):
-    """ aaa
+    """ Geiger counter class to measure the space radiation.
 
     Arguments:
+        name: Name string like geiger meter device.
         uart_dev: Path to the device file like "/dev/tty.usb-serial".
         uart_baud: UART baudrate like 9600.
-        callback: Callback function object. This object needs to have an
-            argument to input data. The unit is set to uSv/h if usv_per_cpm is
-            set, otherwise it's set to "cpm".
+        callback: Callback function object. This object needs to have 3 argument
+            to input data. First one is name of the geiger meter device, second
+            is radiation value, third is the date and time when the radiation
+            value is got. The unit of radiation value is uSv/h if usv_per_cpm
+            is set, otherwise cpm.
         usv_per_cpm: Rate of uSv/h.
     """
 
-    def __init__(self, uart_dev, uart_baud, callback_to_get_val, usv_per_cpm=0.00812):
+    def __init__(self, name, uart_dev, uart_baud, callback_to_get_val, usv_per_cpm=0.00812):
+        self.name_ = name
         self.uart_ = Serial(uart_dev, uart_baud)
         self.callback_ = callback_to_get_val
         self.usv_per_cpm_ = usv_per_cpm
@@ -55,7 +61,14 @@ class GeigerMeter(threading.Thread):
 
         while True:
             try:
-                self.callback_(wait_for_radiation())
+                self.callback_(
+                    self.name_,
+                    OrderedDict({
+                        "label": "Space Radiation",
+                        "value": wait_for_radiation(),
+                        "unit": "usv" if self.usv_per_cpm_ else "cpm"
+                    }),
+                    datetime.utcnow())
             except SerialException:
                 if self.stop_event_.is_set():
                     logger.info("SerialException to stop raised.")

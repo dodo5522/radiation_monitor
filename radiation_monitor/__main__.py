@@ -17,78 +17,67 @@
 
 import sys
 import time
-import datetime
-import tsmppt60_driver as CHARGE_CONTROLLER
 from radiation_monitor import argparser
 from radiation_monitor import config
 from radiation_monitor import logger
-from radiation_monitor.timer import RecursiveTimer
+from radiation_monitor.source import GeigerMeter
 
 
-def event_loop(**kwargs):
+args = argparser.init()
+logger.configure(path_file=args.log_file, is_debug=args.debug)
+
+if args.just_get_status:
+    return
+
+kwargs = dict(args._get_kwargs())
+triggers = config.init_triggers(**kwargs)
+triggers.start()
+
+
+def put_to_triggers(device_name, data, date_time):
     """ Monitor charge controller and update database like xively or
         internal database. This method should be called with a timer.
 
     Args:
-        kwargs: keyword argument object
+        device_name: geiger counter device name
+        data: got data
+        date_time: date and time when the data is got
     Returns:
         None
     Exceptions:
         queue.Full: If queue of event handler is full
     """
-    host_name = kwargs["host_name"]
-    is_status_all = kwargs["status_all"]
-    triggers = kwargs["triggers"]
-
-    now = datetime.datetime.utcnow()
-    system_status = CHARGE_CONTROLLER.SystemStatus(host_name)
-    got_data = system_status.get(is_status_all)
-
     rawdata = {}
-    rawdata["source"] = "solar"
-    rawdata["data"] = got_data
-    rawdata["at"] = now
+    rawdata["source"] = device_name
+    rawdata["data"] = data
+    rawdata["at"] = date_time
 
-    for key, data in got_data.items():
+    for key, datum in data.items():
         logger.info(
-            "{date}: {group}, {elem}, {value}[{unit}]".format(
-                date=now, group=data["group"], elem=key,
+            "{date}: {elem}, {value}[{unit}]".format(
+                date=date_time, elem=key,
                 value=str(data["value"]), unit=data["unit"]))
 
     triggers.put(rawdata)
 
 
-def main():
-    args = argparser.init()
-    kwargs = dict(args._get_kwargs())
+geiger_meter = GeigerMeter(
+    uart_dev="/dev/tty.Bluetooth-Incoming-Port",
+    uart_baud=19200,
+    callback_to_get_val=put_to_triggers,
+    usv_per_cpm=0.00812)
 
-    logger.configure(path_file=args.log_file, is_debug=args.debug)
+geiger_meter.start()
 
-    if args.just_get_status:
-        event_loop(**kwargs)
-        return
-
-    triggers = config.init_triggers(**kwargs)
-    triggers.start()
-
-    kwargs = {}
-    kwargs["host_name"] = args.host_name
-    kwargs["status_all"] = args.status_all
-    kwargs["triggers"] = triggers
-    timer = RecursiveTimer(args.interval, event_loop, **kwargs)
-
-    try:
-        timer.start()
-        while True:
-            time.sleep(10)
-    except KeyboardInterrupt:
-        logger.debug("monitor program will be killed by user.")
-    except:
-        e = sys.exc_info()
-        logger.debug("Another exception: " + str(e[0]) + " is raised.")
-        raise
-    finally:
-        timer.cancel()
-        triggers.stop()
-
-main()
+try:
+    while True:
+        time.sleep(10)
+except KeyboardInterrupt:
+    logger.info("monitor program is terminated by user.")
+except:
+    e = sys.exc_info()
+    logger.error("Another exception: " + str(e[0]) + " is raised.")
+finally:
+    geiger_meter.stop()
+    geiger_meter.join()
+    triggers.stop()
