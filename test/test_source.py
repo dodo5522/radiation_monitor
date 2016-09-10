@@ -21,6 +21,7 @@ try:
 except:
     from mock import MagicMock, patch
 from radiation_monitor.source import GeigerMeter
+from serial import SerialException
 import threading
 
 
@@ -40,39 +41,51 @@ class TestSource(unittest.TestCase):
         pass
 
     @patch("radiation_monitor.source.Serial", autospec=True)
-    def test_(self, patched_serial):
-        e_readline = threading.Event()
-        e_callback = threading.Event()
+    def test_geiger_meter_sequence(self, patched_serial):
+        expected_cpm = 20
 
-        def mocked_readline():
-            e_readline.wait()
-            e_readline.clear()
-            return b"20 [cpm]\n"
+        unlock_readline = threading.Event()
+        raise_serial_exception = threading.Event()
 
-        def mocked_callback(val):
-            e_callback.set()
+        def mocked_serial_close():
+            unlock_readline.set()
+            raise_serial_exception.set()
+
+        def mocked_serial_readline():
+            unlock_readline.wait()
+            unlock_readline.clear()
+
+            if raise_serial_exception.is_set():
+                raise SerialException
+
+            return "{} [cpm]\n".format(expected_cpm).encode("ascii")
 
         uart_port = MagicMock()
-        uart_port.readline = MagicMock(side_effect=mocked_readline)
+        uart_port.close = MagicMock(side_effect=mocked_serial_close)
+        uart_port.readline = MagicMock(side_effect=mocked_serial_readline)
         patched_serial.return_value = uart_port
+
+        callback_called = threading.Event()
+
+        def mocked_callback(val):
+            callback_called.set()
+
         callback = MagicMock(side_effect=mocked_callback)
 
         g = GeigerMeter("/dev/test", 15200, callback)
-
         g.start()
 
         self.assertTrue(g.is_alive())
         callback.assert_not_called()
 
-        e_readline.set()
+        unlock_readline.set()
 
         self.assertTrue(g.is_alive())
-        e_callback.wait(3)
-        callback.assert_called_once_with(20 * 0.00812)
+        callback_called.wait()
+        callback.assert_called_once_with(expected_cpm * 0.00812)
 
         g.stop()
-        e_readline.set()
-        g.join(60)
+        g.join()
 
         self.assertFalse(g.is_alive())
 

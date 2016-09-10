@@ -16,7 +16,9 @@
 #   limitations under the License.
 
 import threading
+from radiation_monitor import logger
 from serial import Serial
+from serial import SerialException
 
 
 class GeigerMeter(threading.Thread):
@@ -29,24 +31,20 @@ class GeigerMeter(threading.Thread):
             argument to input data. The unit is set to uSv/h if usv_per_cpm is
             set, otherwise it's set to "cpm".
         usv_per_cpm: Rate of uSv/h.
-
-    Raises:
-        SerialException: When uart_dev etc. is invalid.
     """
 
     def __init__(self, uart_dev, uart_baud, callback_to_get_val, usv_per_cpm=0.00812):
         self.uart_ = Serial(uart_dev, uart_baud)
         self.callback_ = callback_to_get_val
         self.usv_per_cpm_ = usv_per_cpm
-
-        self.kill_ = threading.Event()
-        self.kill_.clear()
+        self.stop_event_ = threading.Event()
 
         threading.Thread.__init__(self, name=type(self).__name__)
 
     def stop(self):
         """ Stop this thread. """
-        self.kill_.set()
+        self.stop_event_.set()
+        self.uart_.close()
 
     def run(self):
         """ Target function of this thread. """
@@ -55,12 +53,17 @@ class GeigerMeter(threading.Thread):
             cpm = int(self.uart_.readline().decode("ascii").split()[0])
             return cpm * self.usv_per_cpm_ if self.usv_per_cpm_ else cpm
 
-        while not self.kill_.is_set():
+        while True:
             try:
                 self.callback_(wait_for_radiation())
-            except:
+            except SerialException:
+                if self.stop_event_.is_set():
+                    logger.info("SerialException to stop raised.")
+                    break
+                logger.error("SerialException raised.")
+                raise
+            except Exception as e:
+                logger.error("{} raised.".format(type(e).__name__))
                 raise
 
-
-if __name__ == "__main__":
-    pass
+        self.uart_.close()
