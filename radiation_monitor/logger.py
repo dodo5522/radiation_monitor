@@ -21,7 +21,7 @@ _LOGGER = logging.getLogger("radiation_monitor")
 
 
 def configure(
-        path_file="/var/log/radiation_monitor.log",
+        path_file=None,
         log_format="%(asctime)s %(name)s %(levelname)s: %(message)s",
         date_format="%Y/%m/%d %p %l:%M:%S",
         is_debug=False):
