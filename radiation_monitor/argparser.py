@@ -87,7 +87,7 @@ def init(argv=sys.argv[1:]):
         "--just-get-status",
         action='store_true',
         default=False,
-        help="Just get status of charge controller"
+        help="Just get the current radiation"
     )
     arg.add_argument(
         "--debug",
