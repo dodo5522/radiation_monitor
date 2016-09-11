@@ -74,9 +74,11 @@ def main_routine():
             time.sleep(10)
     except KeyboardInterrupt:
         logger.info("Monitor program is terminated by user.")
+        raise
     except:
         e = sys.exc_info()
         logger.error("Another exception: " + str(e[0]) + " is raised.")
+        raise
     finally:
         geiger_meter.stop()
         geiger_meter.join()
