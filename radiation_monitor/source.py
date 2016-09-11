@@ -53,8 +53,9 @@ class GeigerMeter(threading.Thread):
 
         try:
             self.uart_.close()
-        except:
-            logger.error("Error at closing serial port")
+        except Exception as e:
+            logger.error("{} at closing serial port in {}".format(
+                type(e).__name__, type(self).__name__))
 
     def run(self):
         """ Target function of this thread. """
@@ -75,15 +76,20 @@ class GeigerMeter(threading.Thread):
                     datetime.utcnow())
             except (SerialException, KeyboardInterrupt):
                 if self.stop_event_.is_set():
-                    logger.info("SerialException to stop raised.")
+                    logger.info(
+                        "SerialException to stop raised in {}".format(
+                            type(self).__name__))
                     break
-                logger.error("SerialException raised.")
+                logger.error("SerialException raised in {}".format(
+                    type(self).__name__))
                 raise
             except Exception as e:
-                logger.error("{} raised.".format(type(e).__name__))
+                logger.error("{} raised in {}.".format(
+                    type(e).__name__, type(self).__name__))
                 raise
 
         try:
             self.uart_.close()
-        except:
-            logger.error("Error at closing serial port")
+        except Exception as e:
+            logger.error("{} at closing serial port in {}".format(
+                type(e).__name__, type(self).__name__))
