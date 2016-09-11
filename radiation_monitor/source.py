@@ -50,7 +50,11 @@ class GeigerMeter(threading.Thread):
     def stop(self):
         """ Stop this thread. """
         self.stop_event_.set()
-        self.uart_.close()
+
+        try:
+            self.uart_.close()
+        except:
+            logger.error("Error at closing serial port")
 
     def run(self):
         """ Target function of this thread. """
@@ -69,7 +73,7 @@ class GeigerMeter(threading.Thread):
                         "unit": "usv" if self.usv_per_cpm_ else "cpm"
                     }),
                     datetime.utcnow())
-            except SerialException:
+            except (SerialException, KeyboardInterrupt):
                 if self.stop_event_.is_set():
                     logger.info("SerialException to stop raised.")
                     break
@@ -79,4 +83,7 @@ class GeigerMeter(threading.Thread):
                 logger.error("{} raised.".format(type(e).__name__))
                 raise
 
-        self.uart_.close()
+        try:
+            self.uart_.close()
+        except:
+            logger.error("Error at closing serial port")

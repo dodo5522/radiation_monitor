@@ -34,7 +34,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'radiation_monitor = radiation_monitor.__main__:main'
+            'radiation_monitor = radiation_monitor.__main__:main_routine'
         ]
     },
     test_suite='nose.collector',
