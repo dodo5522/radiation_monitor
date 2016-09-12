@@ -33,8 +33,7 @@ package event #DDDDDD {
         IEventListener <|-- IEventTrigger
         IEventListener <|-- IEventHandler
     }
-
-    package trigger #FFFFFF {
+package trigger #FFFFFF {
         class DataIsUpdatedTrigger {
         }
         class RadiationLimitTrigger {
@@ -56,6 +55,24 @@ package event #DDDDDD {
         IEventHandler <|-- XivelyEventHandler
         IEventHandler <|-- TweetBotEventHandler
     }
+}
+
+package threading #DDDDDD {
+    class Thread {
+        +start()
+        +join()
+        #run()
+    }
+}
+
+package source #DDDDDD {
+    class GeigerMeter {
+        +stop()
+        #run() {redefines run()}
+        -wait_for_radiation()
+    }
+
+    Thread <|-- GeigerMeter
 }
 
 package logger #DDDDDD {
