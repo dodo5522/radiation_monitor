@@ -18,7 +18,8 @@ DAEMON=/usr/local/bin/radiation_monitor
 
 [ "${DEBUG}" = 'NO' ] || DEBUG_ARGS='--debug'
 
-DAEMON_ARGS="-i ${INTERVAL} -l ${LOG} ${DEBUG_ARGS} ${ENABLE_ALL_STATUS} \
+DAEMON_ARGS="${SERIAL_DEVICE_PATH} ${SERIAL_BAUDRATE} \
+    -l ${LOG} ${DEBUG_ARGS} \
     -xa ${XIVELY_API_KEY} -xf ${XIVELY_FEED_KEY} \
     -kp ${KEENIO_PROJECT_ID} -kw ${KEENIO_WRITE_KEY} \
     -tck ${TWITTER_CONSUMER_KEY} -tcs ${TWITTER_CONSUMER_SECRET} -tk ${TWITTER_KEY} -ts ${TWITTER_SECRET}"
