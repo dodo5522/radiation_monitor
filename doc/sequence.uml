@@ -13,6 +13,7 @@ box "Event Triggers" #LightBlue
     participant RadiationLimitTrigger
 end box
 box "Event Handlers" #LightGreen
+    participant SafeCastEventHandler
     participant KeenIoEventHandler
     participant TweetBotEventHandler
 end box
@@ -25,7 +26,9 @@ activate RadiationLimitTrigger
 Main -> DataIsUpdatedTrigger
 activate DataIsUpdatedTrigger
 
-DataIsUpdatedTrigger -> KeenIoEventHandler : Run handler loop.
+DataIsUpdatedTrigger -> SafeCastEventHandler : Run handler loop.
+activate SafeCastEventHandler
+DataIsUpdatedTrigger -> KeenIoEventHandler
 activate KeenIoEventHandler 
 RadiationLimitTrigger -> TweetBotEventHandler : Run handler loop.
 activate TweetBotEventHandler
@@ -42,7 +45,11 @@ loop Until terminated by main
     GeigerMeter -> RadiationLimitTrigger
     activate RadiationLimitTrigger
 
-    DataIsUpdatedTrigger -> KeenIoEventHandler : Tell the condition getting worse.
+    DataIsUpdatedTrigger -> SafeCastEventHandler : Tell the updated value.
+    activate SafeCastEventHandler
+    SafeCastEventHandler ->] : Send the radiation value to SafeCast cloud service.
+    deactivate SafeCastEventHandler
+    DataIsUpdatedTrigger -> KeenIoEventHandler : Tell the updated value.
     activate KeenIoEventHandler
     KeenIoEventHandler ->] : Send the radiation value to keenio cloud service.
     deactivate KeenIoEventHandler
@@ -63,7 +70,10 @@ Main -> DataIsUpdatedTrigger : Terminate triggers.
 activate DataIsUpdatedTrigger
 Main -> RadiationLimitTrigger
 activate RadiationLimitTrigger
-DataIsUpdatedTrigger -> KeenIoEventHandler : Terminate handlers.
+DataIsUpdatedTrigger -> SafeCastEventHandler : Terminate handlers.
+DataIsUpdatedTrigger -> KeenIoEventHandler
+DataIsUpdatedTrigger <-- SafeCastEventHandler
+deactivate SafeCastEventHandler
 DataIsUpdatedTrigger <-- KeenIoEventHandler
 deactivate KeenIoEventHandler
 deactivate DataIsUpdatedTrigger
