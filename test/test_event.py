@@ -15,14 +15,56 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+from collections import OrderedDict
+from datetime import datetime
 import unittest
 try:
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 except ImportError:
-    from mock import MagicMock, patch
+    from mock import patch
+from radiation_monitor.event import SafeCastEventHandler
+from radiation_monitor.event import SafeCastFixedLocationEventHandler
 
 
 class TestSafeCastEventHandler(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        pass
+
+    @patch("radiation_monitor.event.requests.post", autospec=True)
+    def test_run_with_normal(self, patched_post):
+        data = {}
+        data["at"] = datetime(2016, 1, 1, 10, 00)
+        data["data"] = {
+            "value": 0.1,
+            "unit": "cpm",
+            "latitude": 123.0,
+            "longitude": 789.0,
+        }
+        expected_data = OrderedDict()
+        expected_data["utf8"] = "✓"
+        expected_data["measurement[value]"] = data["data"]["value"]
+        expected_data["measurement[unit]"] = data["data"]["unit"]
+        expected_data["measurement[captured_at]"] = data["at"].strftime("%d %B %Y, %H:%M:%S")
+#       expected_data["measurement[location_name]"] = "埼玉県羽生市大字弥勒周辺"
+        expected_data["measurement[latitude]"] = data["data"]["latitude"]
+        expected_data["measurement[longitude]"] = data["data"]["longitude"]
+        expected_data["measurement[device_id]"] = 123
+        expected_data["measurement[height]"] = "1m"
+        expected_data["measurement[surface]"] = "Soil"
+        expected_data["measurement[radiation]"] = "Air"
+
+        safecast = SafeCastEventHandler(api_key="hogekey", device_id=123)
+        safecast.start()
+        safecast.put_q(data)
+        safecast.join_q()
+        safecast.stop()
+        safecast.join()
+
+        patched_post.assert_called_once_with("https://api.safecast.org/en-US/measurements?api_key=hogekey", data=expected_data)
+
+
+class TestSafeCastFixedLocationEventHandler(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         pass
@@ -37,8 +79,35 @@ class TestSafeCastEventHandler(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_(self):
-        pass
+    @patch("radiation_monitor.event.requests.post", autospec=True)
+    def test_run_with_normal(self, patched_post):
+        data = {}
+        data["at"] = datetime(2016, 1, 1, 10, 00)
+        data["data"] = {
+            "value": 0.1,
+            "unit": "cpm",
+        }
+        expected_data = OrderedDict()
+        expected_data["utf8"] = "✓"
+        expected_data["measurement[value]"] = data["data"]["value"]
+        expected_data["measurement[unit]"] = data["data"]["unit"]
+        expected_data["measurement[captured_at]"] = data["at"].strftime("%d %B %Y, %H:%M:%S")
+#       expected_data["measurement[location_name]"] = "埼玉県羽生市大字弥勒周辺"
+        expected_data["measurement[latitude]"] = 123.0
+        expected_data["measurement[longitude]"] = 456.0
+        expected_data["measurement[device_id]"] = 123
+        expected_data["measurement[height]"] = "1m"
+        expected_data["measurement[surface]"] = "Soil"
+        expected_data["measurement[radiation]"] = "Air"
+
+        safecast = SafeCastFixedLocationEventHandler(api_key="hogekey", device_id=123, latitude=123.0, longitude=456.0)
+        safecast.start()
+        safecast.put_q(data)
+        safecast.join_q()
+        safecast.stop()
+        safecast.join()
+
+        patched_post.assert_called_once_with("https://api.safecast.org/en-US/measurements?api_key=hogekey", data=expected_data)
 
 
 if __name__ == "__main__":
