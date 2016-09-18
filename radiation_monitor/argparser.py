@@ -42,6 +42,30 @@ def init(argv=sys.argv[1:]):
         help="Serial (UART) device's baudrate to geiger counter"
     )
     arg.add_argument(
+        "-sk", "--safecast-api-key",
+        type=str,
+        nargs='?', default=None, const=None,
+        help="SafeCast API key string"
+    )
+    arg.add_argument(
+        "-sd", "--safecast-device-id",
+        type=str,
+        nargs='?', default=None, const=None,
+        help="Device ID managed on SafeCast"
+    )
+    arg.add_argument(
+        "-lat", "--latitude",
+        type=str,
+        nargs='?', default=None, const=None,
+        help="Latitude of this device"
+    )
+    arg.add_argument(
+        "-lon", "--longitude",
+        type=str,
+        nargs='?', default=None, const=None,
+        help="Longitude of this device"
+    )
+    arg.add_argument(
         "-xa", "--xively-api-key",
         type=str,
         nargs='?', default=None, const=None,

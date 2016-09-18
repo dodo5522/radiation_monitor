@@ -19,6 +19,7 @@ from event_listener.trigger import DataIsUpdatedTrigger
 from event_listener.handler import KeenIoEventHandler
 from event_listener.handler import XivelyEventHandler
 from event_listener.handler import TweetBotEventHandler
+from radiation_monitor.event import SafeCastFixedLocationEventHandler
 
 
 class ListTrigger(list):
@@ -72,6 +73,15 @@ def init_triggers(**kwargs):
             if not conf:
                 return []
         return list(configs)
+
+    configs = get_configs(
+        kwargs["safecast_api_key"],
+        kwargs["safecast_device_id"],
+        kwargs["latitude"],
+        kwargs["longitude"])
+
+    if configs:
+        data_updated_trigger.append(SafeCastFixedLocationEventHandler(*configs))
 
     configs = get_configs(
         kwargs["keenio_project_id"],
