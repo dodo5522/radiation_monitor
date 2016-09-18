@@ -34,8 +34,8 @@ class SafeCastEventHandler(IEventHandler):
     API_URL = "https://api.safecast.org/en-US/measurements"
 
     def __init__(self, api_key, device_id, q_max=5):
-        self.api_key_ = api_key
-        self.device_id_ = device_id
+        self.api_key_ = str(api_key)
+        self.device_id_ = str(device_id)
         IEventHandler.__init__(self, q_max)
 
     def _run(self, data):
