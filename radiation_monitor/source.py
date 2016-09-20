@@ -61,17 +61,26 @@ class GeigerMeter(threading.Thread):
         """ Target function of this thread. """
 
         def wait_for_radiation():
-            cpm = int(self.uart_.readline().decode("ascii").split()[0])
-            return cpm * self.usv_per_cpm_ if self.usv_per_cpm_ else cpm
+            return int(self.uart_.readline().decode("ascii").split()[0])
 
         while True:
+            if "cpm" in locals():
+                del cpm
+
             try:
+                cpm = wait_for_radiation()
+
                 self.callback_(
                     self.name_,
                     OrderedDict({
-                        "label": "Space Radiation",
-                        "value": wait_for_radiation(),
-                        "unit": "usv" if self.usv_per_cpm_ else "cpm"
+                        "Count Per Minute": OrderedDict({
+                            "value": cpm,
+                            "unit": "cpm"
+                        }),
+                        "Micro Sievert Per Hour": OrderedDict({
+                            "value": cpm * self.usv_per_cpm_,
+                            "unit": "usv"
+                        }),
                     }),
                     datetime.utcnow())
             except (SerialException, KeyboardInterrupt):

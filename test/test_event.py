@@ -49,7 +49,7 @@ class TestSafeCastEventHandler(unittest.TestCase):
 #       expected_data["measurement[location_name]"] = "埼玉県羽生市大字弥勒周辺"
         expected_data["measurement[latitude]"] = data["data"]["latitude"]
         expected_data["measurement[longitude]"] = data["data"]["longitude"]
-        expected_data["measurement[device_id]"] = 123
+        expected_data["measurement[device_id]"] = "123"
         expected_data["measurement[height]"] = "1m"
         expected_data["measurement[surface]"] = "Soil"
         expected_data["measurement[radiation]"] = "Air"
@@ -95,7 +95,7 @@ class TestSafeCastFixedLocationEventHandler(unittest.TestCase):
 #       expected_data["measurement[location_name]"] = "埼玉県羽生市大字弥勒周辺"
         expected_data["measurement[latitude]"] = 123.0
         expected_data["measurement[longitude]"] = 456.0
-        expected_data["measurement[device_id]"] = 123
+        expected_data["measurement[device_id]"] = "123"
         expected_data["measurement[height]"] = "1m"
         expected_data["measurement[surface]"] = "Soil"
         expected_data["measurement[radiation]"] = "Air"
