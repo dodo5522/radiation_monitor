@@ -49,11 +49,12 @@ def main_routine():
         """
         rawdata = {}
         rawdata["source"] = device_name
-        rawdata["data"] = data    # {"label": "hoge", "value": 1.2, "unit": "usv"}
+        rawdata["data"] = data    # { "Count Per Minute": { "value": 30, "unit": "cpm" }, "Micro Sievert Per Hour": { "value": 0.24, "unit": "usv" }, }
         rawdata["at"] = date_time
 
-        logger.info("{date}: {value}[{unit}]".format(
-            date=date_time, value=str(data["value"]), unit=data["unit"]))
+        for key, val in data.items():
+            logger.info("{date}: {label}: {value}[{unit}]".format(
+                date=date_time, label=key, value=str(val["value"]), unit=val["unit"]))
 
         triggers.put(rawdata)
 

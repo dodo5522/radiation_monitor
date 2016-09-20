@@ -89,9 +89,14 @@ class TestSource(unittest.TestCase):
         callback.assert_called_once_with(
             "hoge",
             OrderedDict({
-                "label": "Space Radiation",
-                "value": expected_cpm * 0.00812,
-                "unit": "usv"
+                "Count Per Minute": OrderedDict({
+                    "value": expected_cpm,
+                    "unit": "cpm"
+                }),
+                "Micro Sievert Per Hour": OrderedDict({
+                    "value": expected_cpm * 0.00812,
+                    "unit": "usv"
+                }),
             }),
             datetime(2016, 1, 1))
 
