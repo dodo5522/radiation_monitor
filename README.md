@@ -9,6 +9,7 @@ This is an application to monitor our geiger counter module.
 
 # How to install
 
+1. Buy Geiger Counter (SEN-11345) and [install firmware modified by me](https://github.com/dodo5522/Geiger_Counter/tree/master/firmware/geiger_counter_board).
 1. pip3 install -r requirements.txt
 2. pip3 install git+https://github.com/dodo5522/radiation_monitor.git
 
